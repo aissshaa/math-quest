@@ -36,25 +36,24 @@ MathQuest.Generator = {
       minB = 1; maxB = 10 + levelNum * 2;
     }
 
+    var q;
     if (r < 0.10 && levelNum > 1 && topicId.indexOf('cmp') === -1)
-      return this._genFindWrong(minA, maxA, opsFromTopic, minB, maxB);
-    if (r < 0.18 && levelNum > 2 && (topicId.indexOf('num') !== -1 || topicId.indexOf('add') !== -1 || topicId.indexOf('cmp') !== -1))
-      return this._genOrder(1, 10 + levelNum * 5, 4);
-    if (r < 0.26 && levelNum > 1 && topicId.indexOf('cmp') === -1)
-      return this._genTrueFalse(minA, maxA, ['+', '-'], 1, 10 + levelNum * 2);
-    if (r < 0.33 && levelNum > 1 && topicId.indexOf('cmp') === -1 && topicId.indexOf('div') === -1)
-      return this._genFill(20 + levelNum * 15);
-    if (r < 0.40 && (topicId.indexOf('cmp') !== -1 || topicId.indexOf('num') !== -1 || topicId.indexOf('add') !== -1))
-      return this._genSign(1, 10 + levelNum * 3, ['+', '-'], 1, 10 + levelNum * 2);
-    if (r < 0.46 && levelNum > 2 && topicId.indexOf('cmp') === -1 && topicId.indexOf('div') === -1)
-      return this._genReverse(minA, maxA, ['+', '-'], 1, 10 + levelNum * 2);
-    if (r < 0.51 && levelNum > 1)
-      return this._genClosest(50 + levelNum * 30);
+      q = this._genFindWrong(minA, maxA, opsFromTopic, minB, maxB);
+    else if (r < 0.18 && levelNum > 2 && (topicId.indexOf('num') !== -1 || topicId.indexOf('add') !== -1 || topicId.indexOf('cmp') !== -1))
+      q = this._genOrder(1, 10 + levelNum * 5, 4);
+    else if (r < 0.26 && levelNum > 1 && topicId.indexOf('cmp') === -1)
+      q = this._genTrueFalse(minA, maxA, ['+', '-'], 1, 10 + levelNum * 2);
+    else if (r < 0.33 && levelNum > 1 && topicId.indexOf('cmp') === -1 && topicId.indexOf('div') === -1)
+      q = this._genFill(20 + levelNum * 15);
+    else if (r < 0.40 && (topicId.indexOf('cmp') !== -1 || topicId.indexOf('num') !== -1 || topicId.indexOf('add') !== -1))
+      q = this._genSign(1, 10 + levelNum * 3, ['+', '-'], 1, 10 + levelNum * 2);
+    else if (r < 0.46 && levelNum > 2 && topicId.indexOf('cmp') === -1 && topicId.indexOf('div') === -1)
+      q = this._genReverse(minA, maxA, ['+', '-'], 1, 10 + levelNum * 2);
+    else if (r < 0.51 && levelNum > 1)
+      q = this._genClosest(50 + levelNum * 30);
     var gen = this._getGenerator(topicId);
-    if (!gen) {
-      gen = function() { return { text: '2 + 2', answer: 4 }; };
-    }
-    var q = gen.call(this);
+    if (gen) q = gen.call(this);
+    else if (!q) q = { text: '2 + 2', answer: 4 };
     return this._wrapQuestion(q, difficulty);
   },
 
@@ -128,7 +127,7 @@ MathQuest.Generator = {
     if (!q) q = { text: '2 + 2', answer: 4 };
     q.hint = this._genHint(q);
 
-    if (q.type === 'find_wrong' || q.type === 'order' || q.type === 'fill') {
+    if (q.type && q.type !== 'choice' && q.type !== 'input') {
       return q;
     }
 
@@ -263,12 +262,13 @@ MathQuest.Generator = {
     var wrongExpr = wrong.text + ' = ' + wrongAns;
     var wrongIdx = this.rand(0, 3);
     opts.splice(wrongIdx, 0, wrongExpr);
+    var shuffled = this.shuffle(opts);
 
     return {
       type: 'find_wrong',
       text: 'Найди неверный ответ:',
-      options: this.shuffle(opts),
-      answer: opts.indexOf(wrongExpr)
+      options: shuffled,
+      answer: shuffled.indexOf(wrongExpr)
     };
   },
 
