@@ -1,4 +1,4 @@
-var CACHE = 'mathquest-v9';
+var CACHE = 'mathquest-v10';
 
 self.addEventListener('install', function(e) {
   e.waitUntil(
@@ -13,7 +13,8 @@ self.addEventListener('install', function(e) {
         './js/app.js',
         './manifest.json',
         './icon-192.png',
-        './icon-512.png'
+        './icon-512.png',
+        './splash-bg.png'
       ]);
     })
   );
