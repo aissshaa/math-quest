@@ -1,6 +1,6 @@
 self.addEventListener('install', function(e) {
   e.waitUntil(
-    caches.open('mathquest-v1').then(function(cache) {
+    caches.open('mathquest-v2').then(function(cache) {
       return cache.addAll([
         './',
         './index.html',
@@ -16,7 +16,13 @@ self.addEventListener('install', function(e) {
 });
 
 self.addEventListener('activate', function(e) {
-  e.waitUntil(clients.claim());
+  e.waitUntil(
+    caches.keys().then(function(names) {
+      return Promise.all(names.map(function(name) {
+        if (name !== 'mathquest-v2') return caches.delete(name);
+      }));
+    }).then(function() { return clients.claim(); })
+  );
 });
 
 self.addEventListener('fetch', function(e) {
