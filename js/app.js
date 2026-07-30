@@ -507,8 +507,27 @@ MathQuest.App = {
     }
 
     MathQuest.Sound.play('open');
+    this._restoreGameDOM();
     this._showPage('game');
     this._renderQuestion();
+  },
+
+  _restoreGameDOM: function() {
+    var rwd = document.getElementById('g-rwd');
+    if (rwd) rwd.remove();
+    var body = document.getElementById('g-body');
+    var gameEls = body.querySelectorAll('.gtag, .gq, .gans, .ginp, .gfb, .hint-area');
+    for (var i = 0; i < gameEls.length; i++) gameEls[i].style.display = '';
+    document.getElementById('g-ft').innerHTML = '';
+  },
+
+  _restoreBossDOM: function() {
+    var rwd = document.getElementById('b-rwd');
+    if (rwd) rwd.remove();
+    var body = document.getElementById('b-body');
+    var bossEls = body.querySelectorAll('.boss-title, .boss-ch, .boss-name, .boss-hp, .boss-ht, .gq, .gans, .ginp, .gfb, .hint-area');
+    for (var i = 0; i < bossEls.length; i++) bossEls[i].style.display = '';
+    document.getElementById('b-ft').innerHTML = '';
   },
 
   _startBossLevel: function(classId, topicId, levelNum) {
@@ -545,6 +564,7 @@ MathQuest.App = {
     this._updateBossHP();
 
     MathQuest.Sound.play('boss_roar');
+    this._restoreBossDOM();
     this._showPage('boss');
     this._renderBossQuestion();
   },
@@ -749,10 +769,20 @@ MathQuest.App = {
     MathQuest.Sound.play('reward');
     MathQuest.Animations.confetti(60);
 
-    var body = document.getElementById('g-body');
     var perfectText = '';
     if (this._errors === 0) perfectText = '<div style="color:#00c853;font-weight:800;margin-top:8px">Без ошибок! ✨</div>';
-    body.innerHTML = '<div class="rwd"><div class="ri">' + (this._errors === 0 ? '🏆' : '⭐') + '</div><div class="rt">Уровень пройден!</div><div class="rx">+' + xp + ' XP</div><div class="rc">+' + coins + ' 🪙</div>' + perfectText + '<p style="color:#6e6e8a;margin-top:12px">Ошибок: ' + this._errors + '</p></div>';
+
+    var existing = document.getElementById('g-rwd');
+    if (existing) existing.remove();
+    var rwd = document.createElement('div');
+    rwd.className = 'rwd';
+    rwd.id = 'g-rwd';
+    rwd.innerHTML = '<div class="ri">' + (this._errors === 0 ? '🏆' : '⭐') + '</div><div class="rt">Уровень пройден!</div><div class="rx">+' + xp + ' XP</div><div class="rc">+' + coins + ' 🪙</div>' + perfectText + '<p style="color:#6e6e8a;margin-top:12px">Ошибок: ' + this._errors + '</p>';
+
+    var body = document.getElementById('g-body');
+    var gameEls = body.querySelectorAll('.gtag, .gq, .gans, .ginp, .gfb, .hint-area');
+    for (var i = 0; i < gameEls.length; i++) gameEls[i].style.display = 'none';
+    body.appendChild(rwd);
 
     document.getElementById('g-ft').innerHTML = '<button class="btn btn-p btn-b" onclick="MathQuest.App._continueAfterLevel()">Продолжить</button>';
 
@@ -902,7 +932,18 @@ MathQuest.App = {
     var perfectText = '';
     if (this._errors === 0) perfectText = '<div style="color:#00c853;font-weight:800;margin-top:8px">Идеальная битва! ⚡</div>';
 
-    document.getElementById('b-body').innerHTML = '<div class="rwd"><div class="ri">👑</div><div class="rt">Босс побеждён!</div><div class="rx">+100 XP</div><div class="rc">+' + coins + ' 🪙</div>' + perfectText + '</div>';
+    var existing = document.getElementById('b-rwd');
+    if (existing) existing.remove();
+    var rwd = document.createElement('div');
+    rwd.className = 'rwd';
+    rwd.id = 'b-rwd';
+    rwd.innerHTML = '<div class="ri">👑</div><div class="rt">Босс побеждён!</div><div class="rx">+100 XP</div><div class="rc">+' + coins + ' 🪙</div>' + perfectText;
+
+    var bBody = document.getElementById('b-body');
+    var bossEls = bBody.querySelectorAll('.boss-title, .boss-ch, .boss-name, .boss-hp, .boss-ht, .gq, .gans, .ginp, .gfb, .hint-area');
+    for (var i = 0; i < bossEls.length; i++) bossEls[i].style.display = 'none';
+    bBody.appendChild(rwd);
+
     document.getElementById('b-ft').innerHTML = '<button class="btn btn-p btn-b" onclick="MathQuest.App._openMap(' + classId + ')">Вернуться к карте</button>';
 
     var newAch = MathQuest.Store.checkAchievements();
