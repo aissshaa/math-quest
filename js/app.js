@@ -1050,6 +1050,8 @@ MathQuest.App = {
       '<div style="color:#ffd600;font-size:16px;font-weight:800;margin-top:8px">+5000 🪙</div></div>' +
       '<button class="btn btn-b" style="background:white;color:#6c63ff;margin-top:24px;width:200px" onclick="this.parentElement.remove()">🎉 Ура!</button>';
     document.getElementById('app').appendChild(overlay);
+  },
+
   _showAchievementPopup: function(achievements) {
     for (var i = 0; i < achievements.length; i++) {
       var a = achievements[i];
