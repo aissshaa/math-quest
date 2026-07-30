@@ -1,6 +1,8 @@
+var CACHE = 'mathquest-v9';
+
 self.addEventListener('install', function(e) {
   e.waitUntil(
-    caches.open('mathquest-v8').then(function(cache) {
+    caches.open(CACHE).then(function(cache) {
       return cache.addAll([
         './',
         './index.html',
@@ -22,7 +24,7 @@ self.addEventListener('activate', function(e) {
   e.waitUntil(
     caches.keys().then(function(names) {
       return Promise.all(names.map(function(name) {
-        if (name !== 'mathquest-v8') return caches.delete(name);
+        if (name !== CACHE) return caches.delete(name);
       }));
     }).then(function() { return clients.claim(); })
   );
@@ -30,8 +32,12 @@ self.addEventListener('activate', function(e) {
 
 self.addEventListener('fetch', function(e) {
   e.respondWith(
-    caches.match(e.request).then(function(r) {
-      return r || fetch(e.request).catch(function() { return r; });
+    fetch(e.request).then(function(res) {
+      var clone = res.clone();
+      caches.open(CACHE).then(function(cache) { cache.put(e.request, clone); });
+      return res;
+    }).catch(function() {
+      return caches.match(e.request);
     })
   );
 });
