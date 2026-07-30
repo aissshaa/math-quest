@@ -1397,9 +1397,15 @@ MathQuest.Panda = {
           this.show('greeting', 'Погнали! 🚀', 4000);
         }
         break;
-      case 'correct':
-        this.show('happy', 'Красава! 🔥', 2000);
+      case 'correct': {
+        var cheers = [
+          'Красава! 🔥', 'Отлично! 🌟', 'Молодец! 🎉', 'Гений! 🧠', 'Супер! ⚡',
+          'Круто! 💪', 'Вау! 🤯', 'Ты лучший! 🏆', 'Невероятно! ✨', 'Класс! 🎯',
+          'Бомба! 💥', 'Идеально! 👌', 'Великолепно! 🌈', 'Ты в ударе! 🚀', 'Математик! 📐'
+        ];
+        this.show('happy', cheers[Math.floor(Math.random() * cheers.length)], 2000);
         break;
+      }
       case 'wrong':
         this.show('sad', 'Не расстраивайся, попробуй ещё 🐼', 2000);
         break;
