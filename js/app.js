@@ -1345,15 +1345,22 @@ MathQuest.App = {
 
 MathQuest.Panda = {
   _el: null,
-  _face: null,
+  _img: null,
   _bubble: null,
   _text: null,
   _timer: null,
+  _images: {
+    greeting: 'panda-greeting.png',
+    happy: 'panda-happy.png',
+    sad: 'panda-sad.png',
+    celebrate: 'panda-celebrate.png',
+    nudge: 'panda-nudge.png'
+  },
 
   init: function() {
     this._el = document.getElementById('panda');
     if (!this._el) return;
-    this._face = document.getElementById('panda-face');
+    this._img = document.getElementById('panda-img');
     this._bubble = document.getElementById('panda-bubble');
     this._text = document.getElementById('panda-text');
   },
@@ -1362,6 +1369,9 @@ MathQuest.Panda = {
     if (!this._el) return;
     clearTimeout(this._timer);
     this._el.className = 'panda ' + emotion;
+    if (this._img && this._images[emotion]) {
+      this._img.src = this._images[emotion];
+    }
     if (message !== undefined) this._text.textContent = message;
     this._el.style.display = 'flex';
     this._el.style.opacity = '1';
