@@ -1416,9 +1416,17 @@ MathQuest.Panda = {
         this.show('happy', cheers[Math.floor(Math.random() * cheers.length)], 2000);
         break;
       }
-      case 'wrong':
-        this.show('sad', 'Не расстраивайся, попробуй ещё 🐼', 2000);
+      case 'wrong': {
+        var oops = [
+          'Не расстраивайся, попробуй ещё 🐼', 'Ничего страшного, в следующий раз! 💪',
+          'Ошибка — это шаг к успеху! 🌱', 'Бывает, давай ещё раз! 🔄',
+          'Не сдавайся, ты сможешь! 🌟', 'Упс! Но я в тебя верю ✨',
+          'Попробуй ещё, я рядом! 🤝', 'Не переживай, так бывает 🧸',
+          'Ты почти у цели, давай! 🎯', 'Даже гении ошибаются 🧠'
+        ];
+        this.show('sad', oops[Math.floor(Math.random() * oops.length)], 2000);
         break;
+      }
       case 'streak':
         this.show('celebrate', '🔥 Стрик ' + data + ' дней!', 3000);
         break;
