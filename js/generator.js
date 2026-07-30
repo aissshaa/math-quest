@@ -97,6 +97,7 @@ MathQuest.Generator = {
 
   _wrapQuestion: function(q, difficulty) {
     if (!q) q = { text: '2 + 2', answer: 4 };
+    q.hint = this._genHint(q);
     var types = ['choice', 'input'];
     var type = q.type || this.pick(types);
 
@@ -139,6 +140,31 @@ MathQuest.Generator = {
       q.type = 'input';
     }
     return q;
+  },
+
+  _genHint: function(q) {
+    if (q.hint) return q.hint;
+    var text = q.text || '';
+    if (text.indexOf('+') !== -1) return 'Сложи два числа';
+    if (text.indexOf('−') !== -1) return 'Вычти второе число из первого';
+    if (text.indexOf('×') !== -1) return 'Умножь числа';
+    if (text.indexOf('÷') !== -1) return 'Раздели первое число на второе';
+    if (text.indexOf('__') !== -1) return 'Какой знак между числами?';
+    if (text.indexOf('%') !== -1) return 'Процент от числа — раздели на 100 и умножь';
+    if (text.indexOf('∫') !== -1) return 'Найди первообразную и подставь границы';
+    if (text.indexOf('^') !== -1) return 'Возведи число в степень';
+    if (text.indexOf('x') !== -1) return 'Реши уравнение, найди x';
+    if (text.indexOf('Площадь') !== -1) return 'Умножь длину на ширину';
+    if (text.indexOf('Объём') !== -1) return 'Возведи сторону в куб';
+    if (text.indexOf('sin') !== -1 || text.indexOf('cos') !== -1 || text.indexOf('tg') !== -1) return 'Вспомни таблицу тригонометрии';
+    if (text.indexOf('/') !== -1) return 'Приведи дроби к общему знаменателю';
+    if (text.indexOf(':') !== -1) return 'Используй свойство пропорции';
+    if (text.indexOf('Среднее') !== -1) return 'Сложи все числа и раздели на их количество';
+    if (text.indexOf('Вероятность') !== -1) return 'Раздели благоприятные исходы на все';
+    if (text.indexOf('Четверть') !== -1) return 'Определи знаки координат';
+    if (text.indexOf('Сколько') !== -1) return 'Посчитай количество';
+    if (text.indexOf('Упрости') !== -1) return 'Сложи коэффициенты';
+    return 'Подумай внимательно';
   },
 
   _genBasic: function(minA, maxA, ops, minB, maxB) {

@@ -212,6 +212,7 @@ MathQuest.App = {
   _combo: 0,
   _bossHP: 100,
   _bossMax: 100,
+  _hintPrice: 15,
 
   init: function() {
     MathQuest.Store.init();
@@ -564,6 +565,34 @@ MathQuest.App = {
     }
   },
 
+  _showHint: function() {
+    var st = MathQuest.Store;
+    if (st.get('coins') < this._hintPrice) {
+      this._toast('Не хватает монет! Нужно ' + this._hintPrice + ' 🪙', 'err');
+      return;
+    }
+    var q = this._questions[this._qIndex];
+    if (!q || !q.hint) return;
+    st.spendCoins(this._hintPrice);
+    var area = document.getElementById('g-hint-area');
+    area.innerHTML = '<div class="hint-text">💡 ' + q.hint + '</div>';
+    MathQuest.Sound.play('coin');
+  },
+
+  _showBossHint: function() {
+    var st = MathQuest.Store;
+    if (st.get('coins') < this._hintPrice) {
+      this._toast('Не хватает монет! Нужно ' + this._hintPrice + ' 🪙', 'err');
+      return;
+    }
+    var q = this._questions[this._qIndex];
+    if (!q || !q.hint) return;
+    st.spendCoins(this._hintPrice);
+    var area = document.getElementById('b-hint-area');
+    area.innerHTML = '<div class="hint-text">💡 ' + q.hint + '</div>';
+    MathQuest.Sound.play('coin');
+  },
+
   _renderQuestion: function() {
     if (this._qIndex >= this._questions.length) {
       this._completeLevel();
@@ -585,6 +614,9 @@ MathQuest.App = {
 
     document.getElementById('g-tag').textContent = this._curTopic ? this._curTopic.name : '';
     document.getElementById('g-q').innerHTML = q.text;
+
+    var hintArea = document.getElementById('g-hint-area');
+    hintArea.innerHTML = '<button class="hint-btn" onclick="MathQuest.App._showHint()">💡 Подсказка (' + this._hintPrice + '🪙)</button>';
 
     var ans = document.getElementById('g-ans');
     var inp = document.getElementById('g-inp');
@@ -749,6 +781,7 @@ MathQuest.App = {
     document.getElementById('b-fb').style.display = 'none';
 
     document.getElementById('b-q').innerHTML = q.text;
+    document.getElementById('b-hint-area').innerHTML = '<button class="hint-btn" onclick="MathQuest.App._showBossHint()">💡 Подсказка (' + this._hintPrice + '🪙)</button>';
 
     var ans = document.getElementById('b-ans');
     var inp = document.getElementById('b-inp');
