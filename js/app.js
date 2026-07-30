@@ -274,7 +274,7 @@ MathQuest.App = {
   },
 
   _showPage: function(page) {
-    var screens = ['home', 'map', 'game', 'boss', 'prof', 'shop', 'ach', 'set', 'login'];
+    var screens = ['home', 'map', 'game', 'boss', 'prof', 'shop', 'ach', 'set', 'login', 'friends'];
     for (var i = 0; i < screens.length; i++) {
       var el = document.getElementById(screens[i] + '-scr');
       if (el) el.classList.remove('active');
@@ -287,6 +287,7 @@ MathQuest.App = {
     else if (page === 'shop') this._renderShop();
     else if (page === 'ach') this._renderAchievements();
     else if (page === 'set') this._renderSettings();
+    else if (page === 'friends') this._renderFriends();
   },
 
   _navigate: function(page) {
@@ -1154,6 +1155,58 @@ MathQuest.App = {
 
   _closeModal: function() {
     document.getElementById('modal').style.display = 'none';
+  },
+
+  _renderFriends: function() {
+    var body = document.getElementById('f-body');
+    body.innerHTML = '<div style="text-align:center;padding:40px;color:#a0a0b8;font-weight:700">Загрузка...</div>';
+
+    MathQuest.Auth.getFriendsData().then(function(data) {
+      var html = '<div class="pcard" style="margin-bottom:12px">';
+      html += '<input type="email" id="fr-email" class="login-inp" placeholder="Email друга" style="margin-bottom:8px">';
+      html += '<button class="btn btn-p" style="width:100%" onclick="MathQuest.Auth.sendFriendRequest(document.getElementById(\'fr-email\').value.trim())">➕ Добавить друга</button>';
+      html += '<p id="fr-err" class="login-err"></p></div>';
+
+      if (data.requests && data.requests.length > 0) {
+        html += '<div class="sec"><h3>📩 Заявки (' + data.requests.length + ')</h3>';
+        for (var i = 0; i < data.requests.length; i++) {
+          var r = data.requests[i];
+          html += '<div class="srow" style="border:none;padding:8px 0"><span class="sl">' + r.name + '</span>';
+          html += '<button class="btn btn-p" style="font-size:12px;padding:6px 14px;margin-right:6px" onclick="MathQuest.Auth.acceptFriendRequest(\'' + r.from + '\')">✅</button>';
+          html += '<button class="btn btn-d" style="font-size:12px;padding:6px 14px" onclick="MathQuest.Auth.rejectFriendRequest(\'' + r.from + '\')">❌</button></div>';
+        }
+        html += '</div>';
+      }
+
+      if (data.friends && data.friends.length > 0) {
+        var all = data.friends.slice();
+        all.push({ uid: 'me', profile: data.ownProfile });
+        all.sort(function(a, b) { return (b.profile.xp || 0) - (a.profile.xp || 0); });
+
+        html += '<div class="sec"><h3>🏆 Таблица лидеров</h3>';
+        for (var i = 0; i < all.length; i++) {
+          var f = all[i];
+          var isMe = f.uid === 'me';
+          var medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+          html += '<div class="srow" style="border:none;padding:10px 0">';
+          html += '<span style="font-weight:800;width:24px">' + medal + '</span>';
+          html += '<span class="sl">' + (isMe ? '⭐ ' : '') + (f.profile.avatar || '😊') + ' ' + (f.profile.name || 'Игрок') + '</span>';
+          html += '<span style="font-weight:800;color:#6c63ff">Ур. ' + (f.profile.level || 1) + '</span>';
+          html += '<span style="font-weight:700;color:#6e6e8a;margin-left:8px">' + (f.profile.xp || 0) + ' XP</span>';
+          if (!isMe) {
+            html += '<button class="bck" style="margin-left:8px;font-size:11px;padding:4px 8px" onclick="MathQuest.Auth.removeFriend(\'' + f.uid + '\')">❌</button>';
+          }
+          html += '</div>';
+        }
+        html += '</div>';
+      } else {
+        html += '<div class="sec" style="text-align:center;color:#a0a0b8;font-weight:600"><h3>👥 Друзья</h3><p style="margin-top:8px">Пока нет друзей. Добавь первого!</p></div>';
+      }
+
+      body.innerHTML = html;
+    }).catch(function() {
+      body.innerHTML = '<div class="sec" style="text-align:center;color:#a0a0b8;font-weight:600;padding:40px"><p>Ошибка загрузки. Попробуй позже.</p></div>';
+    });
   },
 
   _toast: function(message, type) {

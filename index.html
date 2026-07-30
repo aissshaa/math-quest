@@ -245,6 +245,7 @@ body { font-family: 'Nunito', system-ui, -apple-system, sans-serif; background: 
 </div>
 <div class="nav">
 <button class="nav-btn act" onclick="MathQuest.App._navigate('home')"><span class="ni">🏠</span>Главная</button>
+<button class="nav-btn" onclick="MathQuest.App._navigate('friends')"><span class="ni">👥</span>Друзья</button>
 <button class="nav-btn" onclick="MathQuest.App._navigate('ach')"><span class="ni">🏆</span>Достижения</button>
 <button class="nav-btn" onclick="MathQuest.App._navigate('shop')"><span class="ni">🛒</span>Магазин</button>
 <button class="nav-btn" onclick="MathQuest.App._navigate('prof')"><span class="ni">👤</span>Профиль</button>
@@ -259,6 +260,20 @@ body { font-family: 'Nunito', system-ui, -apple-system, sans-serif; background: 
 <div class="topics-wrap" id="m-topics"></div>
 </div>
 <div class="map-body" id="m-body"></div>
+</div>
+
+<div id="friends-scr" class="screen">
+<div class="phdr"><button class="bck" onclick="MathQuest.App.back()">← Назад</button><h2>👥 Друзья</h2></div>
+<div class="pbody" id="f-body">
+<div class="pcard" style="margin-bottom:12px">
+<input type="email" id="fr-email" class="login-inp" placeholder="Email друга" style="margin-bottom:8px">
+<button class="btn btn-p" style="width:100%" onclick="MathQuest.Auth.sendFriendRequest(document.getElementById('fr-email').value.trim())">➕ Добавить друга</button>
+<p id="fr-err" class="login-err"></p>
+</div>
+<div id="f-requests"></div>
+<div id="f-list"></div>
+<div id="f-leaderboard"></div>
+</div>
 </div>
 
 <div id="game-scr" class="screen">
