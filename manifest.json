@@ -2,12 +2,12 @@
   "name": "Math Quest",
   "short_name": "Math Quest",
   "description": "Математическое приключение для детей",
-  "start_url": "/",
+  "start_url": "/math-quest/",
   "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#f0f2ff",
   "theme_color": "#6c63ff",
-  "scope": "/",
+  "scope": "/math-quest/",
   "icons": [
     {
       "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%236c63ff'/%3E%3Ctext x='96' y='130' font-size='100' text-anchor='middle' fill='white'%3E🧮%3C/text%3E%3C/svg%3E",

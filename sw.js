@@ -2,13 +2,13 @@ self.addEventListener('install', function(e) {
   e.waitUntil(
     caches.open('mathquest-v1').then(function(cache) {
       return cache.addAll([
-        '/',
-        '/index.html',
-        '/js/data.js',
-        '/js/store.js',
-        '/js/generator.js',
-        '/js/app.js',
-        '/manifest.json'
+        './',
+        './index.html',
+        './js/data.js',
+        './js/store.js',
+        './js/generator.js',
+        './js/app.js',
+        './manifest.json'
       ]);
     })
   );
