@@ -1,4 +1,4 @@
-var CACHE = 'mathquest-v12';
+var CACHE = 'mathquest-v13';
 
 self.addEventListener('install', function(e) {
   e.waitUntil(

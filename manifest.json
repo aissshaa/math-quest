@@ -1,6 +1,6 @@
 {
-  "name": "Math Quest",
-  "short_name": "Math Quest",
+  "name": "Math Quiz",
+  "short_name": "Math Quiz",
   "description": "Математическое приключение для детей",
   "start_url": "/math-quest/",
   "display": "fullscreen",
