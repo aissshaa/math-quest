@@ -599,6 +599,48 @@ MathQuest.App = {
     }
   },
 
+  shuffleArray: function(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  },
+
+  _renderOrderButtons: function() {
+    var remaining = this._orderValues.filter(function(v) {
+      return this._orderAnswers.indexOf(v) === -1;
+    }, this);
+    var ans = document.getElementById('g-ans');
+    ans.innerHTML = '';
+    if (this._orderAnswers.length > 0) {
+      var sel = document.createElement('div');
+      sel.className = 'order-sel';
+      sel.textContent = 'Выбрано: ' + this._orderAnswers.join(' → ');
+      ans.appendChild(sel);
+    }
+    var grid = document.createElement('div');
+    grid.className = 'order-grid';
+    for (var i = 0; i < remaining.length; i++) {
+      var btn = document.createElement('button');
+      btn.className = 'ans';
+      btn.textContent = remaining[i];
+      btn.onclick = (function(val) {
+        return function() {
+          MathQuest.App._orderAnswers.push(val);
+          if (MathQuest.App._orderAnswers.length === MathQuest.App._orderValues.length) {
+            MathQuest.App._checkAnswer(MathQuest.App._orderAnswers.slice(), MathQuest.App._questions[MathQuest.App._qIndex]);
+          } else {
+            MathQuest.App._renderOrderButtons();
+          }
+        };
+      })(remaining[i]);
+      grid.appendChild(btn);
+    }
+    ans.appendChild(grid);
+  },
+
   _showHint: function() {
     var st = MathQuest.Store;
     if (st.get('coins') < this._hintPrice) {
@@ -658,18 +700,27 @@ MathQuest.App = {
     inp.style.display = 'none';
     ans.className = 'gans';
 
-    if (q.type === 'choice') {
+    if (q.type === 'choice' || q.type === 'find_wrong') {
       for (var i = 0; i < q.options.length; i++) {
         var btn = document.createElement('button');
         btn.className = 'ans fw';
         var opt = q.options[i];
         btn.textContent = typeof opt === 'boolean' ? (opt ? 'Правда' : 'Ложь') : opt;
-        btn.onclick = (function(option, question) {
-          return function() { MathQuest.App._checkAnswer(option, question); };
-        })(opt, q);
+        btn.onclick = (function(option, question, idx) {
+          return function() { MathQuest.App._checkAnswer(
+            question.type === 'find_wrong' ? idx : option,
+            question
+          ); };
+        })(opt, q, i);
         ans.appendChild(btn);
       }
-    } else {
+    } else if (q.type === 'order') {
+      ans.className = 'gans order';
+      ans.style.display = 'grid';
+      inp.style.display = 'none';
+      this._orderAnswers = [];
+      this._orderValues = this.shuffleArray(q.items.slice());
+      this._renderOrderButtons();
       inp.style.display = 'flex';
       var input = document.getElementById('g-input');
       input.value = '';
@@ -693,6 +744,18 @@ MathQuest.App = {
       isCorrect = userAnswer === q.answer;
     } else if (q.type === 'choice') {
       isCorrect = userAnswer === q.answer;
+    } else if (q.type === 'find_wrong') {
+      isCorrect = userAnswer === q.answer;
+    } else if (q.type === 'order') {
+      isCorrect = userAnswer.length === q.answer.length;
+      if (isCorrect) {
+        for (var oi = 0; oi < userAnswer.length; oi++) {
+          if (userAnswer[oi] !== q.answer[oi]) {
+            isCorrect = false;
+            break;
+          }
+        }
+      }
     } else {
       var expected = typeof q.answer === 'number' ? q.answer : parseFloat(q.answer);
       isCorrect = Math.abs(userAnswer - expected) < 0.01;

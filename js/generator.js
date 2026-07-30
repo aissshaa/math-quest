@@ -21,6 +21,19 @@ MathQuest.Generator = {
   },
 
   generate: function(classId, topicId, levelNum, difficulty) {
+    var r = Math.random();
+    if (r < 0.15 && levelNum > 1 && topicId.indexOf('cmp') === -1) {
+      var minA = 1, maxA = 20 + levelNum * 5;
+      if (topicId.indexOf('add') !== -1) return this._genFindWrong(minA, maxA, ['+']);
+      if (topicId.indexOf('sub') !== -1) return this._genFindWrong(minA, maxA, ['-']);
+      if (topicId.indexOf('mul') !== -1) return this._genFindWrong(2, 9, ['*'], 2, 9);
+      if (topicId.indexOf('div') !== -1) return this._genFindWrong(2, 9, ['/'], 2, 9);
+    }
+    if (r < 0.25 && levelNum > 2) {
+      if (topicId.indexOf('num') !== -1 || topicId.indexOf('add') !== -1 || topicId.indexOf('cmp') !== -1) {
+        return this._genOrder(1, 10 + levelNum * 5, 4);
+      }
+    }
     var gen = this._getGenerator(topicId);
     if (!gen) {
       gen = function() { return { text: '2 + 2', answer: 4 }; };
@@ -98,6 +111,11 @@ MathQuest.Generator = {
   _wrapQuestion: function(q, difficulty) {
     if (!q) q = { text: '2 + 2', answer: 4 };
     q.hint = this._genHint(q);
+
+    if (q.type === 'find_wrong' || q.type === 'order' || q.type === 'fill') {
+      return q;
+    }
+
     var types = ['choice', 'input'];
     var type = q.type || this.pick(types);
 
@@ -144,6 +162,8 @@ MathQuest.Generator = {
 
   _genHint: function(q) {
     if (q.hint) return q.hint;
+    if (q.type === 'find_wrong') return 'Один пример решён неверно — найди его';
+    if (q.type === 'order') return 'Расставь числа от самого маленького до самого большого';
     var text = q.text || '';
     if (text.indexOf('+') !== -1) return 'Сложи два числа';
     if (text.indexOf('−') !== -1) return 'Вычти второе число из первого';
@@ -202,6 +222,49 @@ MathQuest.Generator = {
   _genDiv2to81: function() { return this._genBasic(2, 9, ['/'], 2, 9); },
   _genCompare1to100: function() { return this._genCompare(1, 100); },
   _genAddSub1to500: function() { return this._genBasic(1, 500, ['+', '-']); },
+
+  _genFindWrong: function(minA, maxA, ops, minB, maxB) {
+    var corrects = [];
+    for (var i = 0; i < 3; i++) {
+      corrects.push(this._genBasic(minA, maxA, ops, minB, maxB));
+    }
+    var wrong = this._genBasic(minA, maxA, ops, minB, maxB);
+    var offset = this.rand(2, Math.max(5, Math.abs(wrong.answer / 2) + 1));
+    var wrongAns = wrong.answer + (Math.random() > 0.5 ? offset : -offset);
+    if (wrongAns === wrong.answer) wrongAns = wrong.answer + 1;
+
+    var sym = { '+': '+', '-': '−', '*': '×', '/': '÷' };
+    var opSym = sym[ops[0]] || ops[0];
+    var opts = [];
+    for (var i = 0; i < 3; i++) {
+      opts.push(corrects[i].text + ' = ' + corrects[i].answer);
+    }
+    var wrongExpr = wrong.text + ' = ' + wrongAns;
+    var wrongIdx = this.rand(0, 3);
+    opts.splice(wrongIdx, 0, wrongExpr);
+
+    return {
+      type: 'find_wrong',
+      text: 'Найди неверный ответ:',
+      options: this.shuffle(opts),
+      answer: opts.indexOf(wrongExpr)
+    };
+  },
+
+  _genOrder: function(minVal, maxVal, count) {
+    count = count || this.rand(4, 5);
+    var items = [];
+    for (var i = 0; i < count; i++) {
+      items.push(this.rand(minVal, maxVal));
+    }
+    var sorted = items.slice().sort(function(a, b) { return a - b; });
+    return {
+      type: 'order',
+      text: 'Расставь по порядку (от меньшего к большему):',
+      items: sorted,
+      answer: sorted.slice()
+    };
+  },
   _genAddSub10to9999: function() { return this._genBasic(10, 9999, ['+', '-']); },
   _genMulDiv2to12: function() { return this._genBasic(2, 12, ['*', '/'], 2, 12); },
   _genNat5: function() { return this._genBasic(10, 1000, ['+', '-', '*'], 2, 20); },
