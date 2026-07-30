@@ -25,9 +25,8 @@ MathQuest.Auth = {
         self._ready = true;
         if (user) {
           self._loadData();
-        }
-        if (self._onReady) {
-          self._onReady(user);
+        } else {
+          if (self._onReady) self._onReady(null);
         }
       });
     } catch (e) {
@@ -134,10 +133,10 @@ MathQuest.Auth = {
             }
           }
         }
-        MathQuest.App.afterLogin();
+        if (self._onReady) self._onReady(self._user);
       })
       .catch(function() {
-        MathQuest.App.afterLogin();
+        if (self._onReady) self._onReady(self._user);
       });
   },
 
