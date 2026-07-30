@@ -22,17 +22,24 @@ MathQuest.Generator = {
 
   generate: function(classId, topicId, levelNum, difficulty) {
     var r = Math.random();
-    if (r < 0.15 && levelNum > 1 && topicId.indexOf('cmp') === -1) {
+    if (r < 0.12 && levelNum > 1 && topicId.indexOf('cmp') === -1) {
       var minA = 1, maxA = 20 + levelNum * 5;
       if (topicId.indexOf('add') !== -1) return this._genFindWrong(minA, maxA, ['+']);
       if (topicId.indexOf('sub') !== -1) return this._genFindWrong(minA, maxA, ['-']);
       if (topicId.indexOf('mul') !== -1) return this._genFindWrong(2, 9, ['*'], 2, 9);
       if (topicId.indexOf('div') !== -1) return this._genFindWrong(2, 9, ['/'], 2, 9);
     }
-    if (r < 0.25 && levelNum > 2) {
+    if (r < 0.22 && levelNum > 2) {
       if (topicId.indexOf('num') !== -1 || topicId.indexOf('add') !== -1 || topicId.indexOf('cmp') !== -1) {
         return this._genOrder(1, 10 + levelNum * 5, 4);
       }
+    }
+    if (r < 0.30 && levelNum > 1 && topicId.indexOf('div') === -1 && topicId.indexOf('cmp') === -1) {
+      return this._genTrueFalse(1, 20 + levelNum * 3, ['+', '-'], 1, 10 + levelNum * 2);
+    }
+    if (r < 0.37 && levelNum > 1 && topicId.indexOf('cmp') === -1 && topicId.indexOf('div') === -1) {
+      var v = 20 + levelNum * 15;
+      return this._genFill(v);
     }
     var gen = this._getGenerator(topicId);
     if (!gen) {
@@ -164,6 +171,8 @@ MathQuest.Generator = {
     if (q.hint) return q.hint;
     if (q.type === 'find_wrong') return 'Один пример решён неверно — найди его';
     if (q.type === 'order') return 'Расставь числа от самого маленького до самого большого';
+    if (q.type === 'fill') return 'Найди закономерность и вставь пропущенное число';
+    if (q.type === 'truefalse') return 'Проверь, правильный ли ответ';
     var text = q.text || '';
     if (text.indexOf('+') !== -1) return 'Сложи два числа';
     if (text.indexOf('−') !== -1) return 'Вычти второе число из первого';
@@ -263,6 +272,50 @@ MathQuest.Generator = {
       text: 'Расставь по порядку (от меньшего к большему):',
       items: sorted,
       answer: sorted.slice()
+    };
+  },
+
+  _genFill: function(maxVal) {
+    var step = this.rand(2, maxVal > 50 ? 10 : 5);
+    var start = this.rand(1, maxVal > 50 ? 20 : 10);
+    var vals = [];
+    for (var i = 0; i < 4; i++) {
+      vals.push(start + i * step);
+    }
+    var missingIdx = this.rand(0, 3);
+    var answer = vals[missingIdx];
+    var text = vals.map(function(v, idx) { return idx === missingIdx ? '___' : v; }).join(', ');
+    var opts = [answer];
+    while (opts.length < 4) {
+      var d = this.rand(1, Math.max(step, 3)) * (Math.random() > 0.5 ? 1 : -1);
+      var alt = answer + d;
+      if (alt > 0 && opts.indexOf(alt) === -1) opts.push(alt);
+    }
+    return {
+      type: 'fill',
+      text: 'Заполни пропуск: ' + text,
+      answer: answer,
+      options: this.shuffle(opts)
+    };
+  },
+
+  _genTrueFalse: function(minA, maxA, ops, minB, maxB) {
+    var q = this._genBasic(minA, maxA, ops, minB, maxB);
+    var isCorrect = Math.random() > 0.4;
+    var displayAnswer;
+    if (isCorrect) {
+      displayAnswer = q.answer;
+    } else {
+      var delta = Math.max(Math.abs(q.answer) / 3 + 1, 2);
+      displayAnswer = q.answer + this.rand(1, Math.floor(delta)) * (Math.random() > 0.5 ? 1 : -1);
+    }
+    var sym = { '+': '+', '-': '−', '*': '×', '/': '÷' };
+    var opSym = sym[ops[0]] || ops[0];
+    return {
+      type: 'truefalse',
+      text: q.text + ' = ' + displayAnswer,
+      answer: isCorrect,
+      options: [true, false]
     };
   },
   _genAddSub10to9999: function() { return this._genBasic(10, 9999, ['+', '-']); },

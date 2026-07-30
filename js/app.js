@@ -700,7 +700,7 @@ MathQuest.App = {
     inp.style.display = 'none';
     ans.className = 'gans';
 
-    if (q.type === 'choice' || q.type === 'find_wrong') {
+    if (q.type === 'choice' || q.type === 'find_wrong' || q.type === 'truefalse' || q.type === 'fill') {
       for (var i = 0; i < q.options.length; i++) {
         var btn = document.createElement('button');
         btn.className = 'ans fw';
