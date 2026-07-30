@@ -1381,7 +1381,21 @@ MathQuest.Panda = {
   react: function(event, data) {
     switch (event) {
       case 'home':
-        this.show('greeting', 'Погнали! 🚀', 4000);
+        var st = MathQuest.Store;
+        var lastPlayed = st.get('lastPlayed');
+        var streak = st.get('streak');
+        var today = new Date().toDateString();
+        if (lastPlayed !== today) {
+          if (streak > 0) {
+            this.show('nudge', 'Не теряй стрик! Занимайся сегодня 🔥', 5000);
+          } else {
+            this.show('nudge', 'Давай начнём стрик! 🐼', 5000);
+          }
+        } else if (streak >= 7) {
+          this.show('celebrate', '🔥 Стрик ' + streak + ' дней! Молодец!', 4000);
+        } else {
+          this.show('greeting', 'Погнали! 🚀', 4000);
+        }
         break;
       case 'correct':
         this.show('happy', 'Красава! 🔥', 2000);
