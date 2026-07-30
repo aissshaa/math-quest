@@ -222,7 +222,20 @@ MathQuest.App = {
     MathQuest.Auth.init();
 
     var self = this;
+    var fallback = setTimeout(function() {
+      var splash = document.getElementById('splash');
+      if (splash && splash.style.display !== 'none') {
+        splash.style.transition = 'opacity 0.5s ease';
+        splash.style.opacity = '0';
+        setTimeout(function() {
+          splash.style.display = 'none';
+          self._navigate('home');
+        }, 500);
+      }
+    }, 5000);
+
     MathQuest.Auth.onReady(function(user) {
+      clearTimeout(fallback);
       setTimeout(function() {
         var splash = document.getElementById('splash');
         splash.style.transition = 'opacity 0.5s ease';

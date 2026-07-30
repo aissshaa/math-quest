@@ -7,6 +7,29 @@ MathQuest.Auth = {
   _pending: [],
 
   init: function() {
+    this._resolved = false;
+    if (typeof firebase === 'undefined') {
+      var self = this;
+      var check = setInterval(function() {
+        if (typeof firebase !== 'undefined') {
+          clearInterval(check);
+          self._initFirebase();
+        }
+      }, 200);
+      setTimeout(function() {
+        clearInterval(check);
+        if (!self._resolved) {
+          self._resolved = true;
+          self._ready = true;
+          if (self._onReady) self._onReady(null);
+        }
+      }, 8000);
+      return;
+    }
+    this._initFirebase();
+  },
+
+  _initFirebase: function() {
     try {
       firebase.initializeApp({
         apiKey: "AIzaSyA6Rd_Ixe5IWTrOl1jZiAZ63gClyO6lulY",
@@ -22,6 +45,7 @@ MathQuest.Auth = {
       var self = this;
       firebase.auth().onAuthStateChanged(function(user) {
         self._user = user;
+        self._resolved = true;
         self._ready = true;
         if (user) {
           self._loadData();
@@ -30,8 +54,11 @@ MathQuest.Auth = {
         }
       });
     } catch (e) {
-      this._ready = true;
-      if (this._onReady) this._onReady(null);
+      if (!this._resolved) {
+        this._resolved = true;
+        this._ready = true;
+        if (this._onReady) this._onReady(null);
+      }
     }
   },
 
@@ -133,9 +160,11 @@ MathQuest.Auth = {
             }
           }
         }
+        self._resolved = true;
         if (self._onReady) self._onReady(self._user);
       })
       .catch(function() {
+        self._resolved = true;
         if (self._onReady) self._onReady(self._user);
       });
   },
