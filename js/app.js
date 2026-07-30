@@ -700,7 +700,7 @@ MathQuest.App = {
     inp.style.display = 'none';
     ans.className = 'gans';
 
-    if (q.type === 'choice' || q.type === 'find_wrong' || q.type === 'truefalse' || q.type === 'fill') {
+    if (q.type === 'choice' || q.type === 'find_wrong' || q.type === 'truefalse' || q.type === 'fill' || q.type === 'sign' || q.type === 'reverse' || q.type === 'closest') {
       for (var i = 0; i < q.options.length; i++) {
         var btn = document.createElement('button');
         btn.className = 'ans fw';
@@ -742,9 +742,11 @@ MathQuest.App = {
 
     if (q.type === 'truefalse') {
       isCorrect = userAnswer === q.answer;
-    } else if (q.type === 'choice') {
+    } else if (q.type === 'choice' || q.type === 'find_wrong' || q.type === 'fill' || q.type === 'sign') {
       isCorrect = userAnswer === q.answer;
-    } else if (q.type === 'find_wrong') {
+    } else if (q.type === 'reverse') {
+      isCorrect = userAnswer === q.answer;
+    } else if (q.type === 'closest') {
       isCorrect = userAnswer === q.answer;
     } else if (q.type === 'order') {
       isCorrect = userAnswer.length === q.answer.length;

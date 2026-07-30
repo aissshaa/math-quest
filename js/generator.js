@@ -22,25 +22,34 @@ MathQuest.Generator = {
 
   generate: function(classId, topicId, levelNum, difficulty) {
     var r = Math.random();
-    if (r < 0.12 && levelNum > 1 && topicId.indexOf('cmp') === -1) {
-      var minA = 1, maxA = 20 + levelNum * 5;
-      if (topicId.indexOf('add') !== -1) return this._genFindWrong(minA, maxA, ['+']);
-      if (topicId.indexOf('sub') !== -1) return this._genFindWrong(minA, maxA, ['-']);
-      if (topicId.indexOf('mul') !== -1) return this._genFindWrong(2, 9, ['*'], 2, 9);
-      if (topicId.indexOf('div') !== -1) return this._genFindWrong(2, 9, ['/'], 2, 9);
+    var opsFromTopic = [];
+    if (topicId.indexOf('add') !== -1) opsFromTopic = ['+'];
+    else if (topicId.indexOf('sub') !== -1) opsFromTopic = ['-'];
+    else if (topicId.indexOf('mul') !== -1) opsFromTopic = ['*'];
+    else if (topicId.indexOf('div') !== -1) opsFromTopic = ['/'];
+    else opsFromTopic = ['+', '-'];
+
+    var minA = 1, maxA = 20 + levelNum * 5, minB, maxB;
+    if (topicId.indexOf('mul') !== -1 || topicId.indexOf('div') !== -1) {
+      minA = 2; maxA = 9; minB = 2; maxB = 9;
+    } else {
+      minB = 1; maxB = 10 + levelNum * 2;
     }
-    if (r < 0.22 && levelNum > 2) {
-      if (topicId.indexOf('num') !== -1 || topicId.indexOf('add') !== -1 || topicId.indexOf('cmp') !== -1) {
-        return this._genOrder(1, 10 + levelNum * 5, 4);
-      }
-    }
-    if (r < 0.30 && levelNum > 1 && topicId.indexOf('div') === -1 && topicId.indexOf('cmp') === -1) {
-      return this._genTrueFalse(1, 20 + levelNum * 3, ['+', '-'], 1, 10 + levelNum * 2);
-    }
-    if (r < 0.37 && levelNum > 1 && topicId.indexOf('cmp') === -1 && topicId.indexOf('div') === -1) {
-      var v = 20 + levelNum * 15;
-      return this._genFill(v);
-    }
+
+    if (r < 0.10 && levelNum > 1 && topicId.indexOf('cmp') === -1)
+      return this._genFindWrong(minA, maxA, opsFromTopic, minB, maxB);
+    if (r < 0.18 && levelNum > 2 && (topicId.indexOf('num') !== -1 || topicId.indexOf('add') !== -1 || topicId.indexOf('cmp') !== -1))
+      return this._genOrder(1, 10 + levelNum * 5, 4);
+    if (r < 0.26 && levelNum > 1 && topicId.indexOf('cmp') === -1)
+      return this._genTrueFalse(minA, maxA, ['+', '-'], 1, 10 + levelNum * 2);
+    if (r < 0.33 && levelNum > 1 && topicId.indexOf('cmp') === -1 && topicId.indexOf('div') === -1)
+      return this._genFill(20 + levelNum * 15);
+    if (r < 0.40 && (topicId.indexOf('cmp') !== -1 || topicId.indexOf('num') !== -1 || topicId.indexOf('add') !== -1))
+      return this._genSign(1, 10 + levelNum * 3, ['+', '-'], 1, 10 + levelNum * 2);
+    if (r < 0.46 && levelNum > 2 && topicId.indexOf('cmp') === -1 && topicId.indexOf('div') === -1)
+      return this._genReverse(minA, maxA, ['+', '-'], 1, 10 + levelNum * 2);
+    if (r < 0.51 && levelNum > 1)
+      return this._genClosest(50 + levelNum * 30);
     var gen = this._getGenerator(topicId);
     if (!gen) {
       gen = function() { return { text: '2 + 2', answer: 4 }; };
@@ -173,6 +182,9 @@ MathQuest.Generator = {
     if (q.type === 'order') return 'Расставь числа от самого маленького до самого большого';
     if (q.type === 'fill') return 'Найди закономерность и вставь пропущенное число';
     if (q.type === 'truefalse') return 'Проверь, правильный ли ответ';
+    if (q.type === 'sign') return 'Какой знак сравнения между выражениями?';
+    if (q.type === 'reverse') return 'Вычисли каждый пример и сравни с ответом';
+    if (q.type === 'closest') return 'Какое число самое близкое к указанному?';
     var text = q.text || '';
     if (text.indexOf('+') !== -1) return 'Сложи два числа';
     if (text.indexOf('−') !== -1) return 'Вычти второе число из первого';
@@ -316,6 +328,53 @@ MathQuest.Generator = {
       text: q.text + ' = ' + displayAnswer,
       answer: isCorrect,
       options: [true, false]
+    };
+  },
+
+  _genSign: function(minA, maxA, ops, minB, maxB) {
+    var q1 = this._genBasic(minA, maxA, ops, minB, maxB);
+    var q2 = this._genBasic(minA, maxA, ops, minB, maxB);
+    var correct;
+    if (q1.answer > q2.answer) correct = '>';
+    else if (q1.answer < q2.answer) correct = '<';
+    else correct = '=';
+    return {
+      type: 'sign',
+      text: q1.text + ' __ ' + q2.text,
+      answer: correct,
+      options: ['>', '<', '=']
+    };
+  },
+
+  _genReverse: function(minA, maxA, ops, minB, maxB) {
+    var correct = this._genBasic(minA, maxA, ops, minB, maxB);
+    var opts = [correct.text];
+    while (opts.length < 4) {
+      var decoy = this._genBasic(minA, maxA, ops, minB, maxB);
+      if (opts.indexOf(decoy.text) === -1) opts.push(decoy.text);
+    }
+    return {
+      type: 'reverse',
+      text: 'Какой пример даёт ответ ' + correct.answer + '?',
+      options: this.shuffle(opts),
+      answer: correct.text
+    };
+  },
+
+  _genClosest: function(maxVal) {
+    var target = this.rand(10, maxVal);
+    var offsets = [0];
+    while (offsets.length < 4) {
+      var d = this.rand(1, Math.max(5, maxVal / 5)) * (Math.random() > 0.5 ? 1 : -1);
+      var alt = target + d;
+      if (alt > 0 && offsets.indexOf(d) === -1) offsets.push(d);
+    }
+    var opts = offsets.map(function(o) { return target + o; });
+    return {
+      type: 'closest',
+      text: 'Какое число ближе всего к ' + target + '?',
+      options: this.shuffle(opts),
+      answer: target
     };
   },
   _genAddSub10to9999: function() { return this._genBasic(10, 9999, ['+', '-']); },
