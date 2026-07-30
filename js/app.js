@@ -396,15 +396,15 @@ MathQuest.App = {
       if (i === 0 && !this._curTopic) chip.classList.add('act');
       if (isComplete) chip.classList.add('done');
       chip.textContent = (isComplete ? '✅ ' : '') + t.name;
-      chip.onclick = (function(topic) {
-        return function() {
+      (function(chipEl, topic) {
+        chipEl.onclick = function() {
           var chips = topicsWrap.querySelectorAll('.tchip');
           for (var c = 0; c < chips.length; c++) chips[c].classList.remove('act');
-          chip.classList.add('act');
+          chipEl.classList.add('act');
           MathQuest.App._curTopic = topic;
           MathQuest.App._renderMapLevels(classId, topic);
         };
-      })(t);
+      })(chip, t);
       topicsWrap.appendChild(chip);
     }
 

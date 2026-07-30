@@ -47,6 +47,7 @@ MathQuest.Generator = {
       fr3: this._genSimpleFraction,
       num4: this._genAddSub10to9999,
       ar4: this._genMulDiv2to12,
+      ap4: this._genArea,
       fr4: this._genFractionCompare,
       dc4: this._genDecimalAddSub,
       nat5: this._genNat5,

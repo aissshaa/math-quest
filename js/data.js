@@ -70,7 +70,7 @@ MathQuest.TOPICS = {
     { id: 'num4', name: 'Многозначные числа', levels: 8 },
     { id: 'ar4', name: 'Арифметика', levels: 10 },
     { id: 'fr4', name: 'Дроби', levels: 10 },
-    { id: 'ar4', name: 'Площадь и периметр', levels: 8 },
+    { id: 'ap4', name: 'Площадь и периметр', levels: 8 },
     { id: 'dc4', name: 'Десятичные дроби', levels: 8 }
   ],
   5: [
