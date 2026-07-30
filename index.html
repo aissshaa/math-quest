@@ -179,6 +179,21 @@ body { font-family: 'Nunito', system-ui, -apple-system, sans-serif; background: 
 
 #confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; max-width: 480px; margin: 0 auto; right: 0; }
 
+#panda { display:none; position:fixed; bottom:80px; right:16px; z-index:50; align-items:flex-end; gap:10px; pointer-events:none; transition:opacity 0.3s ease; max-width:480px; }
+#panda-face { font-size:60px; transition:transform 0.3s ease; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.15)); pointer-events:none; line-height:1; }
+#panda-bubble { background:white; border-radius:20px; padding:12px 18px; font-weight:700; font-size:15px; position:relative; box-shadow:0 4px 16px rgba(0,0,0,0.12); max-width:220px; pointer-events:auto; animation:fadeIn 0.3s ease; line-height:1.4; }
+#panda-bubble::after { content:''; position:absolute; bottom:-7px; right:24px; width:14px; height:14px; background:white; transform:rotate(45deg); border-radius:3px; }
+#panda.happy #panda-face { animation:bounce 0.6s infinite; }
+#panda.happy #panda-bubble { background:#e8f5e9; border:2px solid #00c853; color:#2e7d32; }
+#panda.happy #panda-bubble::after { background:#e8f5e9; }
+#panda.sad #panda-face { animation:shake 0.5s; transform:rotate(-5deg); }
+#panda.sad #panda-bubble { background:#ffebee; border:2px solid #ff1744; color:#c62828; }
+#panda.sad #panda-bubble::after { background:#ffebee; }
+#panda.celebrate #panda-face { animation:bounce 0.4s infinite; }
+#panda.celebrate #panda-bubble { background:#fff8e1; border:2px solid #ffd600; color:#f57f17; }
+#panda.celebrate #panda-bubble::after { background:#fff8e1; }
+#panda.greeting #panda-bubble { border:2px solid #6c63ff; color:#2d2d3d; }
+
 @media (max-width: 360px) { .grid { grid-template-columns: repeat(4, 1fr); } .gq { font-size: 18px; } .ans { font-size: 16px; padding: 12px; } }
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: #e8e8f0; border-radius: 2px; }
@@ -350,6 +365,7 @@ body { font-family: 'Nunito', system-ui, -apple-system, sans-serif; background: 
 
 <div class="modal" id="modal"><div class="mc" id="mc" onclick="event.stopPropagation()"></div></div>
 <canvas id="confetti"></canvas>
+<div id="panda"><div id="panda-bubble"><span id="panda-text">Погнали! 🚀</span></div><div id="panda-face">🐼</div></div>
 </div>
 
 <script src="js/data.js"></script>

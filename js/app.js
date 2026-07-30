@@ -217,6 +217,7 @@ MathQuest.App = {
   init: function() {
     MathQuest.Store.init();
     MathQuest.Store.startHeartTimer();
+    MathQuest.Panda.init();
     this._setupListeners();
 
     MathQuest.Auth.init();
@@ -277,12 +278,14 @@ MathQuest.App = {
       if (s > 0 && s % 7 === 0) {
         MathQuest.Sound.play('streak');
         MathQuest.Animations.showReward('🔥 ' + s + ' дней!', '🔥', 50, s * 5);
+        MathQuest.Panda.react('streak', s);
       }
     });
 
     MathQuest.Store.on('levelUp', function(level) {
       self._updateUI();
       MathQuest.Animations.showLevelUp(level);
+      MathQuest.Panda.react('levelup', level);
     });
   },
 
@@ -295,8 +298,11 @@ MathQuest.App = {
     var target = document.getElementById(page + '-scr');
     if (target) target.classList.add('active');
 
-    if (page === 'home') this._renderHome();
-    else if (page === 'prof') this._renderProfile();
+    if (page === 'home') {
+      this._renderHome();
+      var self = this;
+      setTimeout(function() { MathQuest.Panda.react('home'); }, 600);
+    } else if (page === 'prof') this._renderProfile();
     else if (page === 'shop') this._renderShop();
     else if (page === 'ach') this._renderAchievements();
     else if (page === 'set') this._renderSettings();
@@ -771,6 +777,7 @@ MathQuest.App = {
     if (isCorrect) {
       MathQuest.Store.addStreak();
       MathQuest.Sound.play('correct');
+      MathQuest.Panda.react('correct');
       this._combo++;
       this._updateCombo();
       var xp = 10 + (this._combo > 1 ? 5 * (this._combo - 1) : 0);
@@ -794,6 +801,7 @@ MathQuest.App = {
 
     } else {
       MathQuest.Sound.play('wrong');
+      MathQuest.Panda.react('wrong');
       this._combo = 0;
       this._updateCombo();
       this._errors++;
@@ -848,6 +856,7 @@ MathQuest.App = {
 
     MathQuest.Sound.play('reward');
     MathQuest.Animations.confetti(60);
+    MathQuest.Panda.react('complete');
 
     var perfectText = '';
     if (this._errors === 0) perfectText = '<div style="color:#00c853;font-weight:800;margin-top:8px">Без ошибок! ✨</div>';
@@ -935,6 +944,7 @@ MathQuest.App = {
     MathQuest.Store.recordAnswer(isCorrect);
 
     if (isCorrect) {
+      MathQuest.Panda.react('correct');
       var damage = 20 + Math.floor(this._bossMax / this._questions.length);
       this._bossHP = Math.max(0, this._bossHP - damage);
       this._updateBossHP();
@@ -954,6 +964,7 @@ MathQuest.App = {
 
     } else {
       MathQuest.Sound.play('wrong');
+      MathQuest.Panda.react('wrong');
       this._errors++;
       MathQuest.Store.useHeart();
       this._updateHearts();
@@ -1008,6 +1019,7 @@ MathQuest.App = {
 
     MathQuest.Sound.play('boss_defeat');
     MathQuest.Animations.confetti(120);
+    MathQuest.Panda.react('boss_defeat');
 
     var perfectText = '';
     if (this._errors === 0) perfectText = '<div style="color:#00c853;font-weight:800;margin-top:8px">Идеальная битва! ⚡</div>';
@@ -1328,6 +1340,68 @@ MathQuest.App = {
       toast.style.opacity = '0';
       setTimeout(function() { toast.remove(); }, 300);
     }, 2000);
+  }
+};
+
+MathQuest.Panda = {
+  _el: null,
+  _face: null,
+  _bubble: null,
+  _text: null,
+  _timer: null,
+
+  init: function() {
+    this._el = document.getElementById('panda');
+    if (!this._el) return;
+    this._face = document.getElementById('panda-face');
+    this._bubble = document.getElementById('panda-bubble');
+    this._text = document.getElementById('panda-text');
+  },
+
+  show: function(emotion, message, duration) {
+    if (!this._el) return;
+    clearTimeout(this._timer);
+    this._el.className = 'panda ' + emotion;
+    if (message !== undefined) this._text.textContent = message;
+    this._el.style.display = 'flex';
+    this._el.style.opacity = '1';
+    var self = this;
+    if (duration > 0) {
+      this._timer = setTimeout(function() { self.hide(); }, duration);
+    }
+  },
+
+  hide: function() {
+    if (!this._el) return;
+    var self = this;
+    self._el.style.opacity = '0';
+    setTimeout(function() { self._el.style.display = 'none'; }, 300);
+  },
+
+  react: function(event, data) {
+    switch (event) {
+      case 'home':
+        this.show('greeting', 'Погнали! 🚀', 4000);
+        break;
+      case 'correct':
+        this.show('happy', 'Красава! 🔥', 2000);
+        break;
+      case 'wrong':
+        this.show('sad', 'Не расстраивайся, попробуй ещё 🐼', 2000);
+        break;
+      case 'streak':
+        this.show('celebrate', '🔥 Стрик ' + data + ' дней!', 3000);
+        break;
+      case 'levelup':
+        this.show('celebrate', '🎉 Новый уровень!', 3000);
+        break;
+      case 'complete':
+        this.show('celebrate', 'Уровень пройден! 🏆', 3000);
+        break;
+      case 'boss_defeat':
+        this.show('celebrate', 'Босс побеждён! 👑', 3000);
+        break;
+    }
   }
 };
 
