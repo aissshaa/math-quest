@@ -51,9 +51,11 @@ MathQuest.Generator = {
       q = this._genReverse(minA, maxA, ['+', '-'], 1, 10 + levelNum * 2);
     else if (r < 0.51 && levelNum > 1)
       q = this._genClosest(50 + levelNum * 30);
-    var gen = this._getGenerator(topicId);
-    if (gen) q = gen.call(this);
-    else if (!q) q = { text: '2 + 2', answer: 4 };
+    if (!q) {
+      var gen = this._getGenerator(topicId);
+      if (gen) q = gen.call(this);
+      else q = { text: '2 + 2', answer: 4 };
+    }
     return this._wrapQuestion(q, difficulty);
   },
 
@@ -135,28 +137,32 @@ MathQuest.Generator = {
     var type = q.type || this.pick(types);
 
     if (type === 'choice') {
-      var correct = q.answer;
-      var opts = [correct];
-      var attempts = 0;
-      while (opts.length < 4 && attempts < 50) {
-        var offset = this.rand(1, Math.max(Math.abs(correct) + 5, 10));
-        var variant = this.pick([
-          correct + offset,
-          correct - offset,
-          correct + 1,
-          correct - 1,
-          correct * 2,
-          Math.round(correct / 2)
-        ]);
-        if (typeof correct === 'number' && variant > -9999 && variant < 9999) {
-          if (opts.indexOf(variant) === -1) {
-            opts.push(variant);
+      if (q.options) {
+        q.type = 'choice';
+      } else {
+        var correct = q.answer;
+        var opts = [correct];
+        var attempts = 0;
+        while (opts.length < 4 && attempts < 50) {
+          var offset = this.rand(1, Math.max(Math.abs(correct) + 5, 10));
+          var variant = this.pick([
+            correct + offset,
+            correct - offset,
+            correct + 1,
+            correct - 1,
+            correct * 2,
+            Math.round(correct / 2)
+          ]);
+          if (typeof correct === 'number' && variant > -9999 && variant < 9999) {
+            if (opts.indexOf(variant) === -1) {
+              opts.push(variant);
+            }
           }
+          attempts++;
         }
-        attempts++;
+        q.options = this.shuffle(opts);
+        q.type = 'choice';
       }
-      q.options = this.shuffle(opts);
-      q.type = 'choice';
     } else if (type === 'truefalse') {
       var isTrue = Math.random() > 0.4;
       if (isTrue) {
@@ -363,13 +369,12 @@ MathQuest.Generator = {
 
   _genClosest: function(maxVal) {
     var target = this.rand(10, maxVal);
-    var offsets = [0];
-    while (offsets.length < 4) {
+    var opts = [target];
+    while (opts.length < 4) {
       var d = this.rand(1, Math.max(5, maxVal / 5)) * (Math.random() > 0.5 ? 1 : -1);
       var alt = target + d;
-      if (alt > 0 && offsets.indexOf(d) === -1) offsets.push(d);
+      if (alt > 0 && opts.indexOf(alt) === -1) opts.push(alt);
     }
-    var opts = offsets.map(function(o) { return target + o; });
     return {
       type: 'closest',
       text: 'Какое число ближе всего к ' + target + '?',
