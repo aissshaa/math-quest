@@ -721,6 +721,7 @@ MathQuest.App = {
       this._orderAnswers = [];
       this._orderValues = this.shuffleArray(q.items.slice());
       this._renderOrderButtons();
+    } else {
       inp.style.display = 'flex';
       var input = document.getElementById('g-input');
       input.value = '';
