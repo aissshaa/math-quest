@@ -1098,11 +1098,10 @@ MathQuest.App = {
       '<div class="xp-bar" style="margin-top:12px"><div class="xp-fill" style="width:' + Math.min(100, (xp / need) * 100) + '%"></div></div>' +
       '<div style="font-size:13px;color:#6e6e8a;margin-top:6px;font-weight:600">' + xp + ' / ' + need + ' XP</div></div>' +
       '<div class="pstats">' +
-      '<div class="ps"><div class="pv">' + st.get('solved') + '</div><div class="pl">Решено</div></div>' +
+      '<div class="ps"><div class="pv">' + this._countLevels() + '</div><div class="pl">Уровней пройдено</div></div>' +
       '<div class="ps"><div class="pv">' + st.getAccuracy() + '%</div><div class="pl">Точность</div></div>' +
       '<div class="ps"><div class="pv">🪙 ' + st.get('coins') + '</div><div class="pl">Монеты</div></div>' +
-      '<div class="ps"><div class="pv">🔥 ' + st.get('streak') + '</div><div class="pl">Серия</div></div>' +
-      '<div class="ps"><div class="pv">' + this._countLevels() + '</div><div class="pl">Уровней пройдено</div></div></div>';
+      '<div class="ps"><div class="pv">🔥 ' + st.get('streak') + '</div><div class="pl">Серия</div></div></div>';
   },
 
   _renderShop: function() {
