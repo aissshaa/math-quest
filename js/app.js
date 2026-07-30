@@ -954,7 +954,25 @@ MathQuest.App = {
     }
   },
 
-  _showAchievementPopup: function(achievements) {
+  _showFinalScreen: function() {
+    MathQuest.Sound.play('levelup');
+    MathQuest.Animations.confetti(200);
+
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#6c63ff,#ff6584);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:480px;margin:0 auto;animation:fadeIn 0.5s ease';
+    var st = MathQuest.Store;
+    overlay.innerHTML =
+      '<div style="font-size:100px;margin-bottom:16px">🏆</div>' +
+      '<h1 style="font-size:36px;font-weight:900;color:white;text-align:center">Абсолютный чемпион!</h1>' +
+      '<p style="color:rgba(255,255,255,0.9);font-size:18px;font-weight:600;margin-top:8px;text-align:center">Пройдены все 11 классов!</p>' +
+      '<div style="background:rgba(255,255,255,0.2);border-radius:20px;padding:20px;margin-top:20px;width:280px;text-align:center">' +
+      '<div style="color:white;font-size:14px;font-weight:700">Решено задач: ' + st.get('solved') + '</div>' +
+      '<div style="color:white;font-size:14px;font-weight:700;margin-top:4px">Точность: ' + st.getAccuracy() + '%</div>' +
+      '<div style="color:white;font-size:14px;font-weight:700;margin-top:4px">Уровень: ' + st.get('level') + '</div>' +
+      '<div style="color:#ffd600;font-size:16px;font-weight:800;margin-top:8px">+5000 🪙</div></div>' +
+      '<button class="btn btn-b" style="background:white;color:#6c63ff;margin-top:24px;width:200px" onclick="this.parentElement.remove()">🎉 Ура!</button>';
+    document.getElementById('app').appendChild(overlay);
+  },
     for (var i = 0; i < achievements.length; i++) {
       var a = achievements[i];
       MathQuest.Animations.showReward('🎉 ' + a.name, a.icon, 0, a.reward);

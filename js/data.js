@@ -13,7 +13,8 @@ MathQuest.ACHIEVEMENTS = [
   { id: 'cls', name: 'Выпускник', desc: 'Пройди весь класс', icon: '🎓', req: { type: 'class', value: 1 }, reward: 500 },
   { id: 'boss', name: 'Охотник на боссов', desc: 'Победить 5 боссов', icon: '⚔️', req: { type: 'boss', value: 5 }, reward: 400 },
   { id: 'rich', name: 'Богач', desc: 'Накопить 1000 монет', icon: '💰', req: { type: 'coins', value: 1000 }, reward: 200 },
-  { id: 'perf5', name: 'Перфекционист', desc: '100% ответов в 5 уровнях', icon: '🎯', req: { type: 'perf', value: 5 }, reward: 350 }
+  { id: 'perf5', name: 'Перфекционист', desc: '100% ответов в 5 уровнях', icon: '🎯', req: { type: 'perf', value: 5 }, reward: 350 },
+  { id: 'all11', name: 'Абсолютный чемпион', desc: 'Пройди все 11 классов', icon: '🏆', req: { type: 'allclass', value: 1 }, reward: 5000 }
 ];
 
 MathQuest.SHOP = {

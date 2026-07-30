@@ -251,12 +251,32 @@ MathQuest.Store = {
             break;
           }
         }
+      } else if (r.type === 'allclass') {
+        var allClassDone = true;
+        for (var ci = 1; ci <= 11; ci++) {
+          var clsTopics = MathQuest.TOPICS[ci];
+          if (!clsTopics) continue;
+          var clsCp = d.cp[ci];
+          if (!clsCp) { allClassDone = false; break; }
+          for (var ti = 0; ti < clsTopics.length; ti++) {
+            var tp2 = clsCp[clsTopics[ti].id];
+            if (!tp2 || tp2.completedLevels.length < clsTopics[ti].levels) {
+              allClassDone = false;
+              break;
+            }
+          }
+          if (!allClassDone) break;
+        }
+        done = allClassDone;
       }
 
       if (done) {
         unlocked.push(a.id);
         this.addCoins(a.reward);
         newOnes.push(a);
+        if (a.id === 'all11') {
+          MathQuest.App._showFinalScreen();
+        }
       }
     }
 
