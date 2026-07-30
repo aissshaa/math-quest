@@ -345,6 +345,18 @@ MathQuest.App = {
     this._updateHearts();
   },
 
+  _countLevels: function() {
+    var cp = MathQuest.Store.data.cp || {};
+    var total = 0;
+    for (var c in cp) {
+      for (var t in cp[c]) {
+        total += cp[c][t].completedLevels.length;
+        if (cp[c][t].bossDefeated) total++;
+      }
+    }
+    return total;
+  },
+
   _updateHearts: function() {
     var st = MathQuest.Store;
     var count = st.get('hearts');
@@ -1089,7 +1101,8 @@ MathQuest.App = {
       '<div class="ps"><div class="pv">' + st.get('solved') + '</div><div class="pl">Решено</div></div>' +
       '<div class="ps"><div class="pv">' + st.getAccuracy() + '%</div><div class="pl">Точность</div></div>' +
       '<div class="ps"><div class="pv">🪙 ' + st.get('coins') + '</div><div class="pl">Монеты</div></div>' +
-      '<div class="ps"><div class="pv">🔥 ' + st.get('streak') + '</div><div class="pl">Серия</div></div></div>';
+      '<div class="ps"><div class="pv">🔥 ' + st.get('streak') + '</div><div class="pl">Серия</div></div>' +
+      '<div class="ps"><div class="pv">' + this._countLevels() + '</div><div class="pl">Уровней пройдено</div></div></div>';
   },
 
   _renderShop: function() {
