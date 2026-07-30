@@ -1,12 +1,13 @@
 self.addEventListener('install', function(e) {
   e.waitUntil(
-    caches.open('mathquest-v2').then(function(cache) {
+    caches.open('mathquest-v3').then(function(cache) {
       return cache.addAll([
         './',
         './index.html',
         './js/data.js',
         './js/store.js',
         './js/generator.js',
+        './js/auth.js',
         './js/app.js',
         './manifest.json'
       ]);
@@ -19,7 +20,7 @@ self.addEventListener('activate', function(e) {
   e.waitUntil(
     caches.keys().then(function(names) {
       return Promise.all(names.map(function(name) {
-        if (name !== 'mathquest-v2') return caches.delete(name);
+        if (name !== 'mathquest-v3') return caches.delete(name);
       }));
     }).then(function() { return clients.claim(); })
   );

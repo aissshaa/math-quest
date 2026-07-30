@@ -217,18 +217,30 @@ MathQuest.App = {
     MathQuest.Store.init();
     MathQuest.Store.startHeartTimer();
     this._setupListeners();
-    MathQuest.Store.addStreak();
+
+    MathQuest.Auth.init();
 
     var self = this;
-    setTimeout(function() {
-      var splash = document.getElementById('splash');
-      splash.style.transition = 'opacity 0.5s ease';
-      splash.style.opacity = '0';
+    MathQuest.Auth.onReady(function(user) {
       setTimeout(function() {
-        splash.style.display = 'none';
-        self._navigate('home');
-      }, 500);
-    }, 2000);
+        var splash = document.getElementById('splash');
+        splash.style.transition = 'opacity 0.5s ease';
+        splash.style.opacity = '0';
+        setTimeout(function() {
+          splash.style.display = 'none';
+          if (user) {
+            self.afterLogin();
+          } else {
+            self._navigate('login');
+          }
+        }, 500);
+      }, 1500);
+    });
+  },
+
+  afterLogin: function() {
+    MathQuest.Store.addStreak();
+    this._navigate('home');
   },
 
   _setupListeners: function() {
@@ -261,7 +273,7 @@ MathQuest.App = {
   },
 
   _showPage: function(page) {
-    var screens = ['home', 'map', 'game', 'boss', 'prof', 'shop', 'ach', 'set'];
+    var screens = ['home', 'map', 'game', 'boss', 'prof', 'shop', 'ach', 'set', 'login'];
     for (var i = 0; i < screens.length; i++) {
       var el = document.getElementById(screens[i] + '-scr');
       if (el) el.classList.remove('active');
@@ -1020,7 +1032,8 @@ MathQuest.App = {
       '<button class="btn btn-p" style="margin-top:8px;width:100%" onclick="MathQuest.App._saveName()">Сохранить</button></div>' +
       '<div class="sec"><h3>💾 Данные</h3>' +
       '<button class="btn btn-g" style="width:100%;margin-bottom:8px" onclick="MathQuest.App._exportData()">📤 Экспорт</button>' +
-      '<button class="btn btn-d" style="width:100%" onclick="MathQuest.App._resetData()">🗑️ Сброс</button></div>';
+      '<button class="btn btn-d" style="width:100%;margin-bottom:8px" onclick="MathQuest.App._resetData()">🗑️ Сброс</button>' +
+      (MathQuest.Auth && MathQuest.Auth._user ? '<button class="btn btn-d" style="width:100%" onclick="MathQuest.Auth.logout()">🚪 Выйти из аккаунта</button>' : '') + '</div>';
 
     document.getElementById('tog-snd').onclick = function() {
       var enabled = !MathQuest.Store.get('sound');

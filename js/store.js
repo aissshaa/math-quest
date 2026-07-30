@@ -30,6 +30,7 @@ MathQuest.Store = {
     if (!d.perfectTopics) d.perfectTopics = [];
     if (typeof d.bosses !== 'number') d.bosses = 0;
     if (!d.lastHeartTime) d.lastHeartTime = Date.now();
+    if (!d.lastSave) d.lastSave = 0;
     this._regenHearts();
   },
 
@@ -55,12 +56,22 @@ MathQuest.Store = {
       bosses: 0,
       sound: true,
       avatar: '😊',
-      lastHeartTime: Date.now()
+      lastHeartTime: Date.now(),
+      lastSave: 0
     };
   },
 
   save: function() {
     localStorage.setItem('mathquest_data', JSON.stringify(this.data));
+    if (MathQuest.Auth && MathQuest.Auth._user) {
+      MathQuest.Auth.sync();
+    }
+  },
+
+  reset: function() {
+    localStorage.removeItem('mathquest_data');
+    this.data = this._defaultData();
+    this.save();
   },
 
   get: function(key) {
