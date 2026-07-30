@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Math Quest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#6c63ff">
+<meta name="color-scheme" content="light">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%236c63ff'/%3E%3Ctext x='96' y='130' font-size='100' text-anchor='middle' fill='white'%3E🧮%3C/text%3E%3C/svg%3E">
+<title>Math Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Nunito', system-ui, -apple-system, sans-serif; background: #f0f2ff; color: #2d2d3d; min-height: 100vh; overflow-x: hidden; }
+#app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; background: #f0f2ff; }
+.screen { display: none; flex-direction: column; min-height: 100vh; }
+.screen.active { display: flex; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes scaleIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+.top-bar { display: flex; align-items: center; gap: 10px; padding: 10px 16px 8px; flex-wrap: wrap; }
+.top-bar > div { display: flex; align-items: center; gap: 4px; background: white; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-weight: 700; font-size: 14px; box-shadow: 0 2px 8px rgba(108,99,255,0.1); }
+.lvl-badge { width: 28px; height: 28px; background: linear-gradient(135deg,#6c63ff,#ff6584); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 13px; }
+.hearts-wrap { margin-left: auto; display: flex; gap: 3px; }
+.heart { font-size: 20px; transition: 0.3s; }
+.heart.lost { opacity: 0.3; transform: scale(0.8); }
+
+.home-body { flex: 1; padding: 16px; overflow-y: auto; }
+.greeting { text-align: center; margin-bottom: 20px; }
+.greeting .avatar { font-size: 60px; margin-bottom: 6px; }
+.greeting h2 { font-size: 20px; font-weight: 800; }
+.greeting .xpi { color: #6e6e8a; font-size: 14px; font-weight: 600; margin-top: 4px; }
+.xp-bar { width: 200px; height: 8px; background: #e8e8f0; border-radius: 4px; margin: 8px auto 0; overflow: hidden; }
+.xp-fill { height: 100%; background: linear-gradient(90deg,#6c63ff,#ff6584); border-radius: 4px; transition: width 0.8s ease; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.cclass { aspect-ratio: 1; background: white; border: 2px solid #e8e8f0; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-weight: 800; font-size: 18px; transition: 0.3s; box-shadow: 0 2px 8px rgba(108,99,255,0.1); }
+.cclass:hover { transform: translateY(-3px); border-color: #6c63ff; }
+.cclass .cl { font-size: 10px; color: #6e6e8a; font-weight: 600; }
+.cclass.sel { border-color: #6c63ff; background: #e8eaf6; }
+
+.nav { display: flex; justify-content: space-around; padding: 8px 12px 12px; background: white; border-top: 1px solid #e8e8f0; }
+.nav-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; border: none; cursor: pointer; padding: 6px 12px; border-radius: 10px; font-family: inherit; font-size: 10px; color: #a0a0b8; font-weight: 700; transition: 0.3s; }
+.nav-btn .ni { font-size: 22px; }
+.nav-btn.act { color: #6c63ff; }
+
+.map-hdr { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: white; border-bottom: 1px solid #e8e8f0; flex-wrap: wrap; }
+.map-hdr h2 { font-size: 20px; font-weight: 800; flex: 1; }
+.topics-wrap { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0; width: 100%; }
+.tchip { flex-shrink: 0; padding: 6px 14px; background: #f0f2ff; border: 1px solid #e8e8f0; border-radius: 20px; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 700; color: #6e6e8a; transition: 0.3s; white-space: nowrap; }
+.tchip.act { background: #6c63ff; color: white; border-color: #6c63ff; }
+.tchip.done { background: #00c853; color: white; border-color: #00c853; }
+
+.map-body { flex: 1; overflow-y: auto; padding: 24px 16px 40px; display: flex; flex-direction: column; align-items: center; }
+.mpath { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.mlvl { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.lnode { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; cursor: pointer; transition: 0.3s; border: 3px solid #e8e8f0; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 2; }
+.lnode:hover { transform: scale(1.08); }
+.lnode.ok { background: #00c853; color: white; border-color: #00c853; }
+.lnode.cur { border-color: #6c63ff; background: #6c63ff; color: white; animation: pulse 1.5s infinite; }
+.lnode.lock { background: #e8e8f0; color: #a0a0b8; cursor: not-allowed; opacity: 0.6; }
+.lnode.boss { width: 80px; height: 80px; font-size: 28px; background: linear-gradient(135deg,#ff1744,#ff6d00); border-color: #ff1744; color: white; }
+.lnode.boss.ok { background: linear-gradient(135deg,#00c853,#00c853); border-color: #00c853; }
+.conn { width: 3px; height: 30px; background: #e8e8f0; z-index: 1; }
+.conn.ok { background: #00c853; }
+.lbl { font-size: 11px; font-weight: 700; color: #6e6e8a; margin-top: 4px; }
+.bck { background: #f0f2ff; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 14px; transition: 0.3s; color: #2d2d3d; }
+.bck:hover { background: #e8e8f0; }
+
+.game-hdr { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: white; border-bottom: 1px solid #e8e8f0; }
+.gpt { font-weight: 800; font-size: 14px; color: #6e6e8a; }
+.combo-display { margin-left: auto; font-weight: 900; font-size: 14px; color: #ff6d00; min-width: 60px; text-align: center; transition: 0.3s; }
+.gpb { height: 4px; background: #e8e8f0; }
+.gpf { height: 100%; background: linear-gradient(90deg,#6c63ff,#ff6584); transition: width 0.5s ease; }
+.gbody { flex: 1; padding: 24px 16px; overflow-y: auto; display: flex; flex-direction: column; }
+.gtag { align-self: flex-start; padding: 6px 16px; background: #6c63ff; color: white; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 16px; }
+.gq { font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 24px; line-height: 1.4; }
+.gans { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ans { padding: 16px; border: 2px solid #e8e8f0; border-radius: 16px; background: white; cursor: pointer; font-family: inherit; font-size: 18px; font-weight: 700; transition: 0.3s; text-align: center; box-shadow: 0 2px 8px rgba(108,99,255,0.1); }
+.ans:hover { border-color: #6c63ff; transform: scale(1.02); }
+.ans.fw { grid-column: 1 / -1; }
+.ginp { display: flex; gap: 10px; margin-top: 16px; }
+.ginp input { flex: 1; padding: 14px 18px; border: 2px solid #e8e8f0; border-radius: 16px; font-family: inherit; font-size: 20px; font-weight: 700; outline: none; transition: 0.3s; background: white; }
+.ginp input:focus { border-color: #6c63ff; }
+.gfb { text-align: center; padding: 20px; margin-top: 16px; border-radius: 16px; }
+.gfb.ok { background: #e8f5e9; }
+.gfb.no { background: #ffebee; }
+.gfb .fi { font-size: 48px; display: block; margin-bottom: 8px; }
+.gfb .ft { font-size: 18px; font-weight: 800; }
+.gfb .fd { font-size: 14px; color: #6e6e8a; margin-top: 4px; }
+.gft { padding: 16px; text-align: center; }
+
+.btn { padding: 12px 24px; border: none; border-radius: 16px; font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+.btn:active { transform: scale(0.95); }
+.btn-p { background: #6c63ff; color: white; }
+.btn-g { background: #00c853; color: white; }
+.btn-d { background: #ff1744; color: white; }
+.btn-b { padding: 16px 32px; font-size: 18px; border-radius: 24px; }
+
+.rwd { text-align: center; padding: 24px; }
+.rwd .ri { font-size: 72px; margin-bottom: 12px; }
+.rwd .rt { font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+.rwd .rx { font-size: 20px; color: #6c63ff; font-weight: 800; }
+.rwd .rc { font-size: 18px; color: #ffd600; font-weight: 800; margin-top: 4px; }
+
+.boss-body { flex: 1; padding: 24px 16px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+.boss-title { font-size: 24px; font-weight: 900; text-align: center; margin-bottom: 12px; animation: bounce 1s infinite; }
+.boss-ch { font-size: 80px; margin: 8px 0; }
+.boss-name { font-size: 18px; font-weight: 800; color: #ff1744; margin-bottom: 12px; }
+.boss-hp { width: 100%; max-width: 300px; height: 20px; background: #ffebee; border-radius: 10px; overflow: hidden; margin-bottom: 4px; border: 2px solid #ff1744; }
+.boss-hf { height: 100%; background: linear-gradient(90deg,#ff1744,#ff6d00); transition: width 0.5s ease; border-radius: 8px; }
+.boss-ht { font-size: 14px; font-weight: 700; color: #6e6e8a; margin-bottom: 20px; }
+
+.phdr { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: white; border-bottom: 1px solid #e8e8f0; }
+.phdr h2 { flex: 1; }
+.pbody { flex: 1; padding: 16px; overflow-y: auto; }
+.pcard { background: white; border-radius: 24px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(108,99,255,0.1); margin-bottom: 16px; }
+.pcard .pa { font-size: 72px; margin-bottom: 8px; }
+.pcard .pn { font-size: 22px; font-weight: 800; }
+.pstats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.ps { background: white; border-radius: 16px; padding: 16px; text-align: center; box-shadow: 0 2px 8px rgba(108,99,255,0.1); }
+.ps .pv { font-size: 24px; font-weight: 900; }
+.ps .pl { font-size: 12px; color: #6e6e8a; font-weight: 600; margin-top: 2px; }
+
+.shdr { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: white; border-bottom: 1px solid #e8e8f0; }
+.shdr h2 { flex: 1; }
+.stabs { display: flex; gap: 4px; padding: 8px 16px; background: white; overflow-x: auto; border-bottom: 1px solid #e8e8f0; }
+.stab { flex-shrink: 0; padding: 8px 16px; border: none; background: #f0f2ff; border-radius: 20px; font-family: inherit; font-size: 13px; font-weight: 700; color: #6e6e8a; cursor: pointer; transition: 0.3s; }
+.stab.act { background: #6c63ff; color: white; }
+.sbody { flex: 1; padding: 16px; overflow-y: auto; }
+.sgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sitem { background: white; border-radius: 16px; padding: 16px; text-align: center; box-shadow: 0 2px 8px rgba(108,99,255,0.1); border: 2px solid #e8e8f0; transition: 0.3s; }
+.sitem.own { border-color: #00c853; }
+.sitem .si { font-size: 40px; margin-bottom: 8px; }
+.sitem .sn { font-weight: 800; font-size: 14px; margin-bottom: 4px; }
+.sitem .sp { font-size: 13px; color: #6e6e8a; font-weight: 700; margin-bottom: 8px; }
+.sb { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+.sb.own { background: #00c853; color: white; }
+.sb.eq { background: #6c63ff; color: white; }
+
+.ahdr { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: white; border-bottom: 1px solid #e8e8f0; }
+.ahdr h2 { flex: 1; }
+.abody { flex: 1; padding: 16px; overflow-y: auto; }
+.ach { display: flex; align-items: center; gap: 14px; background: white; border-radius: 16px; padding: 16px; box-shadow: 0 2px 8px rgba(108,99,255,0.1); margin-bottom: 10px; border: 2px solid #e8e8f0; }
+.ach.unlock { border-color: #ffd600; background: linear-gradient(135deg,#fff8e1,#fffde7); }
+.ach .ai { font-size: 36px; }
+.ach .aii { flex: 1; }
+.ach .an { font-weight: 800; font-size: 15px; }
+.ach .ad { font-size: 12px; color: #6e6e8a; }
+.ach .as { font-size: 24px; }
+
+.sbody2 { flex: 1; padding: 16px; overflow-y: auto; }
+.sec { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(108,99,255,0.1); }
+.sec h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
+.srow { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e8e8f0; }
+.srow:last-child { border-bottom: none; }
+.sl { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.tog { width: 48px; height: 28px; background: #e8e8f0; border-radius: 14px; position: relative; cursor: pointer; transition: 0.3s; border: none; padding: 0; flex-shrink: 0; }
+.tog::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.tog.on { background: #6c63ff; }
+.tog.on::after { transform: translateX(20px); }
+
+.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; display: none; align-items: center; justify-content: center; max-width: 480px; margin: 0 auto; }
+.mc { background: white; border-radius: 24px; padding: 32px 24px; max-width: 360px; width: 90%; text-align: center; max-height: 80vh; overflow-y: auto; }
+.mc h2 { font-size: 24px; font-weight: 900; margin-bottom: 8px; }
+.mc p { color: #6e6e8a; margin-bottom: 16px; font-weight: 600; }
+.mc .mi { font-size: 64px; margin-bottom: 12px; }
+.mc .btn { width: 100%; margin-top: 8px; }
+
+#confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; max-width: 480px; margin: 0 auto; right: 0; }
+
+@media (max-width: 360px) { .grid { grid-template-columns: repeat(4, 1fr); } .gq { font-size: 18px; } .ans { font-size: 16px; padding: 12px; } }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: #e8e8f0; border-radius: 2px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="splash" style="display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#6c63ff,#ff6584);position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;max-width:480px;margin:0 auto">
+<div style="font-size:80px;margin-bottom:20px">🧮</div>
+<h1 style="font-size:42px;font-weight:900;color:white;text-shadow:0 2px 10px rgba(0,0,0,0.2);letter-spacing:-1px">Math Quest</h1>
+<p style="color:rgba(255,255,255,0.85);font-size:18px;font-weight:600;margin-top:8px">Математическое приключение</p>
+</div>
+
+<div id="home-scr" class="screen active">
+<div class="top-bar">
+<div><span>🔥</span><span id="h-streak">0</span></div>
+<div><div class="lvl-badge" id="h-lvl">1</div></div>
+<div><span>🪙</span><span id="h-coins">0</span></div>
+<div class="hearts-wrap" id="h-hearts"></div>
+</div>
+<div class="home-body">
+<div class="greeting">
+<div class="avatar" id="h-ava">😊</div>
+<h2 id="h-greet">Добро пожаловать!</h2>
+<p class="xpi">Уровень <span id="h-lvl-lbl">1</span> · <span id="h-xp">0</span>/<span id="h-xpn">100</span> XP</p>
+<div class="xp-bar"><div class="xp-fill" id="h-xpbar" style="width:0%"></div></div>
+</div>
+<div class="grid" id="h-grid"></div>
+<p style="text-align:center;color:#a0a0b8;font-size:14px;font-weight:600" id="h-hint">Выбери свой класс</p>
+</div>
+<div class="nav">
+<button class="nav-btn act" onclick="MathQuest.App._navigate('home')"><span class="ni">🏠</span>Главная</button>
+<button class="nav-btn" onclick="MathQuest.App._navigate('ach')"><span class="ni">🏆</span>Достижения</button>
+<button class="nav-btn" onclick="MathQuest.App._navigate('shop')"><span class="ni">🛒</span>Магазин</button>
+<button class="nav-btn" onclick="MathQuest.App._navigate('prof')"><span class="ni">👤</span>Профиль</button>
+<button class="nav-btn" onclick="MathQuest.App._navigate('set')"><span class="ni">⚙️</span>Настройки</button>
+</div>
+</div>
+
+<div id="map-scr" class="screen">
+<div class="map-hdr">
+<button class="bck" onclick="MathQuest.App.back()">← Назад</button>
+<h2 id="m-title">7 Класс</h2>
+<div class="topics-wrap" id="m-topics"></div>
+</div>
+<div class="map-body" id="m-body"></div>
+</div>
+
+<div id="game-scr" class="screen">
+<div class="game-hdr">
+<button class="bck" onclick="MathQuest.App.back()">← Выйти</button>
+<div class="hearts-wrap" id="g-hearts"></div>
+<div class="combo-display" id="g-combo"></div>
+<div class="gpt" id="g-pt">1/5</div>
+</div>
+<div class="gpb"><div class="gpf" id="g-pb" style="width:0%"></div></div>
+<div class="gbody" id="g-body">
+<div class="gtag" id="g-tag"></div>
+<div class="gq" id="g-q"></div>
+<div class="gans" id="g-ans"></div>
+<div class="ginp" id="g-inp" style="display:none">
+<input type="text" id="g-input" placeholder="Введи ответ..." inputmode="numeric">
+<button class="btn btn-p" id="g-sub">Проверить</button>
+</div>
+<div class="gfb" id="g-fb" style="display:none"></div>
+</div>
+<div class="gft" id="g-ft"></div>
+</div>
+
+<div id="boss-scr" class="screen">
+<div class="game-hdr">
+<button class="bck" onclick="MathQuest.App.back()">← Выйти</button>
+<div class="hearts-wrap" id="b-hearts"></div>
+</div>
+<div class="boss-body" id="b-body">
+<div class="boss-title">⚔️ Битва с Боссом!</div>
+<div class="boss-ch" id="b-ch">👾</div>
+<div class="boss-name" id="b-name">Монстр</div>
+<div class="boss-hp"><div class="boss-hf" id="b-hp" style="width:100%"></div></div>
+<div class="boss-ht" id="b-ht">❤️ 100/100</div>
+<div class="gq" id="b-q"></div>
+<div class="gans" id="b-ans"></div>
+<div class="ginp" id="b-inp" style="display:none">
+<input type="text" id="b-input" placeholder="Введи ответ..." inputmode="numeric">
+<button class="btn btn-d" id="b-sub">Атаковать!</button>
+</div>
+<div class="gfb" id="b-fb" style="display:none"></div>
+</div>
+<div class="gft" id="b-ft"></div>
+</div>
+
+<div id="prof-scr" class="screen">
+<div class="phdr"><button class="bck" onclick="MathQuest.App.back()">← Назад</button><h2>Профиль</h2></div>
+<div class="pbody" id="p-body"></div>
+</div>
+
+<div id="shop-scr" class="screen">
+<div class="shdr"><button class="bck" onclick="MathQuest.App.back()">← Назад</button><h2>Магазин</h2><div>🪙 <span id="s-coins">0</span></div></div>
+<div class="stabs" id="s-tabs">
+<button class="stab act" data-tab="avatars">Аватары</button>
+<button class="stab" data-tab="frames">Рамки</button>
+<button class="stab" data-tab="themes">Темы</button>
+<button class="stab" data-tab="hearts">Сердца</button>
+</div>
+<div class="sbody" id="s-body"></div>
+</div>
+
+<div id="ach-scr" class="screen">
+<div class="ahdr"><button class="bck" onclick="MathQuest.App.back()">← Назад</button><h2>Достижения</h2><div id="a-cnt">0/0</div></div>
+<div class="abody" id="a-body"></div>
+</div>
+
+<div id="set-scr" class="screen">
+<div class="phdr"><button class="bck" onclick="MathQuest.App.back()">← Назад</button><h2>Настройки</h2></div>
+<div class="sbody2" id="s-body2"></div>
+</div>
+
+<div class="modal" id="modal"><div class="mc" id="mc" onclick="event.stopPropagation()"></div></div>
+<canvas id="confetti"></canvas>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/generator.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
